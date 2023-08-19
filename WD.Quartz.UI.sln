@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WD.Quartz.UI", "WD.Quartz.UI\WD.Quartz.UI.csproj", "{E4F7919A-6E63-4BC1-B403-28ACD560D1FC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WD.TestUI", "WD.TestUI\WD.TestUI.csproj", "{473CB3A9-76B8-472D-AEAB-6E25F4BA5F62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E4F7919A-6E63-4BC1-B403-28ACD560D1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4F7919A-6E63-4BC1-B403-28ACD560D1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4F7919A-6E63-4BC1-B403-28ACD560D1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4F7919A-6E63-4BC1-B403-28ACD560D1FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{473CB3A9-76B8-472D-AEAB-6E25F4BA5F62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{473CB3A9-76B8-472D-AEAB-6E25F4BA5F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{473CB3A9-76B8-472D-AEAB-6E25F4BA5F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{473CB3A9-76B8-472D-AEAB-6E25F4BA5F62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18D0C4EF-9C11-4727-A36E-1A76EFC414D5}
+	EndGlobalSection
+EndGlobal

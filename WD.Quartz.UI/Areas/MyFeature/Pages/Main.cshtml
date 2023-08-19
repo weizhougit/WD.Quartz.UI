@@ -1,0 +1,652 @@
+﻿@page "/QuartzUI"
+
+@model WD.Quartz.UI.Areas.MyFeature.Pages.MainModel
+@{
+    Layout = "_JavasCriptLayout";
+    ViewData["Title"] = " Quartz后台任务调度";
+}
+<div id="main">
+    <el-container class="app-container">
+        <el-header class="app-header" style="background-color: #545c64">
+            <div class="img" style="float: left;height: 60px;padding: 10px;">
+                <img src="~/_content/WD.Quartz.UI/images/favicon.png" style="height: 40px;" />
+            </div>
+            <div class="txt" style="margin-left: -25px;float: left;padding: 18px 23px;height: 100%;font-size: 17px;font-weight: bolder;color: #c9c9c9;">
+                Quartz后台任务调度
+            </div>
+            <!-- 头部样式 -->
+            <div class="menu" style="float: right;">
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
+                         background-color="#545c64"
+                         text-color="#fff"
+                         active-text-color="#ffd04b">
+                    <el-menu-item index="1">任务调度</el-menu-item>
+                    <el-menu-item index="2"><el-link @@click="handleTC" target="_blank" :underline="false">安全退出</el-link></el-menu-item>
+                </el-menu>
+            </div>
+        </el-header>
+        <el-main>
+            <el-row class="app-function" type="flex" align="middle" style="height: 64px;">
+                <el-col :span="8">
+                    <h4>后台任务列表</h4>
+                </el-col>
+                <el-col :span="16" style="text-align: right;">
+                    <el-button type="primary" size="small" icon="el-icon-plus" @@click="handleXJRW">新建任务</el-button>
+                    <el-button type="info" size="small" icon="el-icon-edit" @@click="handleXGRW">修改任务</el-button>
+                    <el-button type="success" size="small" icon="el-icon-open" @@click="handleKQRW">开启任务</el-button>
+                    <el-button type="warning" size="small" icon="el-icon-video-pause" @@click="handleZTRW">暂停任务</el-button>
+                    <el-button type="danger" size="small" icon="el-icon-video-play" @@click="handleLJZX">立即执行</el-button>
+                    <el-button type="danger" size="small" icon="el-icon-delete-solid" @@click="handleSCRW">删除任务</el-button>
+                    <el-button type="default" size="small" icon="el-icon-refresh" @@click="handleSXRW">刷新数据</el-button>
+                </el-col>
+            </el-row>
+            <el-row type="flex" align="middle">
+                <el-col :span="24" style="padding: 10px 0 0 0;">
+                    <el-table ref="tableRef" :data="tableData" border stripe style="width: 100%;" highlight-current-row
+                              :max-height="tabContentHeight" @* :height="tabContentHeight" *@ :header-cell-style="{backgroundColor:'#F5F7FA',color:'#000000'}"
+                              @@current-change="handleSelect">
+                        <el-table-column type="index" width="50" label="序号" align="center">
+                        </el-table-column>
+                        <el-table-column prop="TaskName" label="任务" width="180" align="center">
+                        </el-table-column>
+                        <el-table-column prop="GroupName" label="分组" width="180" align="center">
+                        </el-table-column>
+                        <el-table-column prop="Interval" width="120" label="间隔时间" align="center">
+                        </el-table-column>
+                        <el-table-column prop="Status" width="120" label="运行状态" align="center">
+                            <template slot-scope="scope">
+                                <el-tag type="danger" disable-transitions v-if="scope.row.Status==4">
+                                    {{scope.row.Status|formatStatues}}
+                                </el-tag>
+                                <el-tag type="danger" disable-transitions v-if="scope.row.Status==5">
+                                    {{scope.row.Status|formatStatues}}
+                                </el-tag>
+                                <el-tag type="success" disable-transitions v-if="scope.row.Status==6">
+                                    {{scope.row.Status|formatStatues}}
+                                </el-tag>
+                                <el-tag type="success" disable-transitions v-if="scope.row.Status==7">
+                                    {{scope.row.Status|formatStatues}}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="TaskType" label="任务类型" width="120" align="center">
+                            <template slot-scope="scope">
+                                {{scope.row.TaskType==1?'API':'DLL'}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="ApiUrl" label="ApiUrl" width="200" align="center" :show-overflow-tooltip="true"></el-table-column>
+                        <el-table-column prop="LastRunTime" width="180" label="最近一次运行时间" align="center">
+                        </el-table-column>
+                        <el-table-column prop="Describe" label="任务描述" :show-overflow-tooltip="true" align="center">
+                        </el-table-column>
+                        <el-table-column label="操作" width="160" align="center">
+                            <template slot-scope="scope">
+                                <el-button size="mini" type="default" @@click="handleRunLog(scope.$index, scope.row)">执行记录</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-col>
+            </el-row>
+            <el-row class="app-pagination" type="flex" align="middle">
+                <el-col :span="24" style="text-align: right;margin-top:20px;">
+                    <el-pagination @@size-change="handleSizeChange"
+                                   @@current-change="handleCurrentChange"
+                                   :current-page="pagination.PageNumber"
+                                   :page-sizes="[10, 20, 30, 50]"
+                                   :page-size="pagination.PageSize"
+                                   layout="total, sizes, prev, pager, next, jumper"
+                                   :total="pagination.Total">
+                    </el-pagination>
+                </el-col>
+            </el-row>
+        </el-main>
+    </el-container>
+    <el-dialog :title="addDialog.title" :visible.sync="addDialog.visible" :destroy-on-close="true">
+        <template slot="title">
+            <div class="avue-crud__dialog__header">
+                <span class="el-dialog__title">
+                    <span style="display:inline-block;background-color: #3478f5;width:5px;height:25px;margin-right:5px; float: left;"> </span>
+                    {{addDialog.title}}
+                </span>
+            </div>
+        </template>
+        <el-row type="flex" justify="center">
+            <el-col :span="23">
+                <el-form :model="ruleForm" ref="ruleForm" label-width="10em" class="demo-ruleForm">
+                    <el-form-item label="任务"
+                                  prop="TaskName"
+                                  :rules="rules.TaskName">
+                        <el-input v-model="ruleForm.TaskName" :disabled="this.addDialog.isEdit" placeholder="请输入任务名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="分组"
+                                  prop="GroupName"
+                                  :rules="rules.GroupName">
+                        <el-input v-model="ruleForm.GroupName" :disabled="this.addDialog.isEdit" placeholder="请输入分组名称"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="间隔时间"
+                                  prop="Interval"
+                                  :rules="rules.Interval">
+
+                        <el-input v-model="ruleForm.Interval"></el-input>
+                        <p style="font-size:12px;color:red">间隔时间请输入Cron表达式<a target="_blank" href="https://qqe2.com/cron">在线生成</a></p>
+                    </el-form-item>
+                    <el-form-item label="任务类型"
+                                  prop="TaskType"
+                                  :rules="rules.TaskType">
+                        <el-select v-model="ruleForm.TaskType" placeholder="请选择任务类型" @@change="taskTypeChange">
+                            <el-option label="API" :value="1"></el-option>
+                            <el-option label="DLL" :value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="ApiUrl"
+                                  prop="ApiUrl"
+                                  :rules="rules.ApiUrl"
+                                  v-if="ruleForm.TaskType==1">
+                        <el-input v-model="ruleForm.ApiUrl" placeholder="请输入API地址"></el-input>
+                    </el-form-item>
+                    <el-form-item label="API访问类型"
+                                  prop="ApiRequestType"
+                                  :rules="rules.ApiRequestType"
+                                  v-if="ruleForm.TaskType==1">
+                        <el-select v-model="ruleForm.ApiRequestType" placeholder="请选择请求方式">
+                            <el-option label="GET" value="GET"></el-option>
+                            <el-option label="POST" value="POST"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="授权名"
+                                  prop="ApiAuthKey"
+                                  :rules="rules.ApiAuthKey"
+                                  v-if="ruleForm.TaskType==1">
+                        <el-input v-model="ruleForm.ApiAuthKey" placeholder="请输入API授权名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="授权值"
+                                  prop="ApiAuthValue"
+                                  :rules="rules.ApiAuthValue"
+                                  v-if="ruleForm.TaskType==1">
+                        <el-input v-model="ruleForm.ApiAuthValue" placeholder="请输入API授权值"></el-input>
+                    </el-form-item>
+                    <el-form-item label="参数(API和DLL通用)"
+                                  prop="ApiParameter"
+                                  :rules="rules.ApiParameter">
+                        <el-input v-model="ruleForm.ApiParameter" placeholder="请输入调用参数"></el-input>
+                    </el-form-item>
+                    <el-form-item label="DLL类型名"
+                                  prop="DllClassName"
+                                  :rules="rules.DllClassName"
+                                  v-if="ruleForm.TaskType==2">
+                        <el-select filterable v-model="ruleForm.DllClassName" placeholder="请选择DLL类型名">
+                            <el-option label="无" value=""></el-option>
+                            <el-option v-for="pclass in classJobs" :label="pclass" :value="pclass"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="任务描述" prop="Describe">
+                        <el-input type="textarea" :rows="5" v-model="ruleForm.Describe"></el-input>
+                    </el-form-item>
+                </el-form>
+            </el-col>
+        </el-row>
+        <span slot="footer" class="dialog-footer" style="text-align:center">
+            <el-button type="primary" @@click="submitForm('ruleForm')">{{addDialog.btnText}}</el-button>
+            <el-button v-if="!this.addDialog.isEdit" @@click="resetForm('ruleForm')">重置</el-button>
+        </span>
+    </el-dialog>
+    <el-dialog title="执行记录" :visible.sync="runLogDialog.visible" width="80%"
+               @@opened="openLogDialogEvent" custom-class="logDialog" :fullscreen="runLogDialog.full">
+        <template slot="title">
+            <div class="avue-crud__dialog__header">
+                <span class="el-dialog__title">
+                    <span style="display:inline-block;background-color: #3478f5;width:5px;height:25px;margin-right:5px; float: left;"> </span>
+                    执行记录
+                </span>
+                <div class="avue-crud__dialog__menu" @@click="logDialogFullEvent">
+                    <i class="el-icon-full-screen"></i>
+                </div>
+            </div>
+        </template>
+        <el-row type="flex" align="middle">
+            <el-col :span="24" style="padding: 10px 0 0 0;">
+                <el-table ref="tb_record" :data="runLogDialog.tableData" border stripe style="width: 100%;"
+                          highlight-current-row :header-cell-style="{backgroundColor:'#F5F7FA',color:'#000000'}"
+                          :max-height="runLogDialog.tabContentHeight">
+                    <el-table-column type="index" width="50" label="序号" align="center">
+                    </el-table-column>
+                    <el-table-column prop="TaskName" label="任务名称" width="160" align="center">
+                    </el-table-column>
+                    <el-table-column prop="BeginDate" label="开始时间" width="160" align="center">
+                    </el-table-column>
+                    <el-table-column prop="EndDate" label="结束时间" width="160" align="center">
+                    </el-table-column>
+                    <el-table-column prop="Msg" label="消息" align="center" :show-overflow-tooltip="true">
+                    </el-table-column>
+                </el-table>
+            </el-col>
+        </el-row>
+        <el-row class="logDialog-pagination" type="flex" align="middle">
+            <el-col :span="24" style="text-align: right;margin-top:20px;">
+                <el-pagination @@size-change="logHandleSizeChange"
+                               @@current-change="logHandleCurrentChange"
+                               :current-page="logPagination.PageNumber"
+                               :page-sizes="[10, 20, 30, 50]"
+                               :page-size="logPagination.PageSize"
+                               layout="total, sizes, prev, pager, next, jumper"
+                               :total="logPagination.Total"
+                @*hide-on-single-page*@>
+                </el-pagination>
+            </el-col>
+        </el-row>
+    </el-dialog>
+</div>
+@section Scripts{
+    <script>
+        new Vue({
+            el: "#main",
+            data() {
+                return {
+                    activeIndex: '1',
+                    tableData: [],
+                    ruleForm: this.initTaskEntity(),
+                    rules: {
+                        TaskName: [
+                            { required: true, message: '请输入任务名称', trigger: 'blur' }
+                        ],
+                        GroupName: [
+                            { required: true, message: '请输入分组名称', trigger: 'blur' }
+                        ],
+                        Interval: [
+                            { required: true, message: '请输入任务时间间隔', trigger: 'blur' }
+                        ],
+                        ApiUrl: [
+                            { required: true, message: '请输入调用的API地址', trigger: 'blur' }
+                        ],
+                        Describe: [
+                            { required: true, message: '请输入任务描述', trigger: 'blur' }
+                        ],
+                        TaskType: [
+                            { required: true, message: '请选择任务类型', trigger: 'change' }
+                        ],
+                        ApiRequestType: [
+                            { required: true, message: '请选择API访问类型', trigger: 'change' }
+                        ],
+                        DllClassName: [
+                            { required: true, message: '请输入类名', trigger: 'blur' }
+                        ]
+                    },
+                    selectRow: "",
+                    recordData: [],
+                    classJobs: [],
+                    pagination: {
+                        PageNumber: 1,
+                        PageSize: 10,
+                        Total: 0,
+                    },
+                    logPagination: {
+                        PageNumber: 1,
+                        PageSize: 10,
+                        Total: 0,
+                    },
+                    runLogDialog: {
+                        visible: false,
+                        tableData: [],
+                        tabContentHeight: "",
+                        full: false
+                    },
+                    addDialog: {
+                        visible: false,
+                        title: '新建任务',
+                        btnText: '立即创建',
+                        isEdit: false,
+                    },
+                    tabContentHeight: "",
+                }
+            },
+            mounted: function () {
+                this.handleSXRW();
+                this.getclassJobs();
+                this.calculateTableHeight();
+            },
+            methods: {
+                handleSXRW() {
+                    var that = this;
+                    axios.post("?handler=JobList", null, {
+                        params: {
+                            pageNumber: that.pagination.PageNumber,
+                            pageSize: that.pagination.PageSize
+                        }
+                    }).then(function (res) {
+                        that.pagination.Total = res.data.Total;
+                        that.tableData = res.data.Data;
+                    });
+                },
+                getclassJobs() {
+                    var that = this;
+                    axios("?handler=SelectClassJob").then(function (res) {
+                        that.classJobs = res.data.Data;
+                    });
+                },
+                handleXJRW() {
+                    this.addDialog.title = "新建任务";
+                    this.addDialog.btnText = "立即创建";
+                    this.addDialog.isEdit = false;
+                    this.ruleForm = this.initTaskEntity();
+                    this.addDialog.visible = true;
+                },
+                handleXGRW() {
+                    if (!this.selectRow) {
+                        this.$message({
+                            message: '选择一条数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    this.addDialog.title = "修改任务";
+                    this.addDialog.btnText = "立即修改";
+                    this.addDialog.isEdit = true;
+                    this.addDialog.visible = true;
+                    this.ruleForm = Object.assign({}, this.selectRow);
+                },
+                handleKQRW() {
+                    if (!this.selectRow) {
+                        this.$message({
+                            message: '选择一条数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    var that = this;
+                    ELEMENT.MessageBox.confirm('确定开启选中任务吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios.post("?handler=StartJob", null,
+                            {
+                                params: that.selectRow
+                            }).then(res => {
+                                if (res.data.Result > 0) {
+                                    that.handleSXRW();
+                                }
+                                ELEMENT.MessageBox.alert(res.data.Message, "系统提示");
+                            });
+                    }).catch(() => { });
+                },
+                handleZTRW() {
+                    if (!this.selectRow) {
+                        this.$message({
+                            message: '选择一条数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    var that = this;
+                    ELEMENT.MessageBox.confirm('确定暂停选中任务吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios.post("?handler=PauseJob", null,
+                            {
+                                params: that.selectRow
+                            }).then(res => {
+                                if (res.data.Result > 0) {
+                                    that.handleSXRW();
+                                }
+                                ELEMENT.MessageBox.alert(res.data.Message, "系统提示");
+                            });
+                    }).catch(() => { });
+                },
+                handleLJZX() {
+                    if (!this.selectRow) {
+                        this.$message({
+                            message: '选择一条数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    var that = this;
+                    ELEMENT.MessageBox.confirm('确定立即执行选中任务吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios.post("?handler=RunJob", null,
+                            {
+                                params: that.selectRow
+                            }).then(res => {
+                                if (res.data.Result > 0) {
+                                    that.handleSXRW();
+                                }
+                                ELEMENT.MessageBox.alert(res.data.Message, "系统提示");
+                            });
+                    }).catch(() => { });
+                },
+                handleSCRW() {
+                    if (!this.selectRow) {
+                        this.$message({
+                            message: '选择一条数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    var that = this;
+                    ELEMENT.MessageBox.confirm('此操作将永久删除该任务, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios.post("?handler=DeleteJob", null,
+                            {
+                                params: that.selectRow
+                            }).then(function (res) {
+                                if (res.data.Result > 0) {
+                                    that.handleSXRW();
+                                }
+                                ELEMENT.MessageBox.alert(res.data.Message, "系统提示");
+                            });
+                    }).catch(() => { });
+                },
+                handleSelect(val) {
+                    this.selectRow = val;
+                },
+                handleSizeChange(size) {
+                    this.pagination.PageNumber = 1;
+                    this.pagination.PageSize = size;
+                    this.handleSXRW();
+                },
+                handleCurrentChange(page) {
+                    this.pagination.PageNumber = page;
+                    this.handleSXRW();
+                },
+                logHandleSizeChange(size) {
+                    this.logPagination.PageNumber = 1;
+                    this.logPagination.PageSize = size;
+                    this.getRecord();
+                },
+                logHandleCurrentChange(page) {
+                    this.logPagination.PageNumber = page;
+                    this.getRecord();
+                },
+                handleRunLog(index, row) {
+                    this.logPagination.PageNumber = 1;
+                    this.logPagination.PageSize = 10;
+                    this.selectRow = row;
+                    this.getRecord(() => {
+                        this.runLogDialog.visible = true;
+                    });
+
+                },
+                getRecord(callback) {
+                    this.runLogDialog.tableData = [];
+                    var that = this;
+                    axios.post("?handler=JobRecord", null, {
+                        params: {
+                            taskName: that.selectRow.TaskName,
+                            groupName: that.selectRow.GroupName,
+                            pageNumber: that.logPagination.PageNumber,
+                            pageSize: that.logPagination.PageSize
+                        }
+                    }).then(res => {
+                        that.logPagination.Total = res.data.Total;
+                        that.runLogDialog.tableData = res.data.Data;
+                        if (callback) {
+                            callback();
+                        }
+                    });
+                },
+                resetForm(name) {
+                    this.$refs[name].resetFields();
+                    if (this.addDialog.isEdit) {
+                        this.ruleForm = this.initTaskEntity();
+                        this.ruleForm.Id = that.selectRow.Id;
+                    }
+                },
+                submitForm(name) {
+                    var that = this;
+                    this.$refs[name].validate((valid) => {
+                        if (valid) {
+                            let url = "";
+                            if (that.addDialog.isEdit) {
+                                url = "?handler=UpdateJob";
+                            } else {
+                                url = "?handler=AddJob";
+                            }
+                            axios.post(url, null,
+                                {
+                                    params: that.ruleForm
+                                }
+                            ).then(function (res) {
+                                if (res.data.Result > 0) {
+                                    that.addDialog.visible = false;
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'success', callback: () => {
+                                            that.handleSXRW();
+                                            that.resetForm('ruleForm');
+                                        }
+                                    });
+                                } else {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'error', callback: () => {
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                },
+                taskTypeChange(val) {
+                    this.$refs["ruleForm"].clearValidate();
+                },
+                initTaskEntity() {
+                    return {
+                        Id: 0,
+                        TaskName: '',
+                        GroupName: '',
+                        Interval: '',
+                        ApiUrl: '',
+                        Describe: '',
+                        LastRunTime: '',
+                        Status: '',
+                        TaskType: '',
+                        ApiRequestType: '',
+                        ApiAuthKey: '',
+                        ApiAuthValue: '',
+                        ApiParameter: '',
+                        DllClassName: '',
+                    }
+                },
+                handleTC() {
+                    axios("?handler=LogOut").then(function (res) { });
+                },
+                calculateTableHeight() {
+                    var appHeaderElem = document.getElementsByClassName("app-header");
+                    var appHeadeHeight = appHeaderElem[0].clientHeight;
+                    var appFunctionElem = document.getElementsByClassName("app-function");
+                    var appFunctionHeight = appFunctionElem[0].clientHeight + 31;
+                    var appPaginationElem = document.getElementsByClassName("app-pagination");
+                    var appPaginationHeight = appPaginationElem[0].clientHeight + 20;
+                    this.tabContentHeight = document.documentElement.clientHeight - appHeadeHeight - appFunctionHeight - appPaginationHeight;
+                },
+                calculateLogTableHeight(isReduce) {
+                    if (isReduce) {
+                        this.logPagination.PageNumber = 1;
+                        this.logPagination.PageSize = 10;
+                        this.runLogDialog.tableData = this.runLogDialog.tableData.slice(0, 10);
+                    }
+                    var appDialogElem = document.getElementsByClassName("logDialog");
+                    var appDialogHeight = appDialogElem[0].clientHeight;
+                    var headerElem = document.querySelector('.logDialog>.el-dialog__header');
+                    var headerHeight = headerElem.clientHeight;
+                    var appPaginationElem = document.getElementsByClassName("logDialog-pagination");
+                    var appPaginationHeight = appPaginationElem[0].clientHeight * 2;
+                    this.runLogDialog.tabContentHeight = appDialogHeight - headerHeight - appPaginationHeight;
+                },
+                calculateLogTableFullHeight() {
+                    var appDialogElem = document.getElementsByClassName("logDialog");
+                    var appDialogHeight = appDialogElem[0].clientHeight;
+                    var headerElem = document.querySelector('.logDialog>.el-dialog__header');
+                    var headerHeight = headerElem.clientHeight + 20;
+                    var appPaginationElem = document.getElementsByClassName("logDialog-pagination");
+                    var appPaginationHeight = appPaginationElem[0].clientHeight * 2 + 20;
+                    this.runLogDialog.tabContentHeight = appDialogHeight - headerHeight - appPaginationHeight;
+                },
+                openLogDialogEvent() {
+                    this.calculateLogTableHeight(false);
+                },
+                logDialogFullEvent() {
+                    this.runLogDialog.full = !this.runLogDialog.full;
+                    var that = this;
+                    setTimeout(function () {
+                        if (that.runLogDialog.full) {
+                            that.calculateLogTableFullHeight();
+                        }
+                        else {
+                            that.calculateLogTableHeight(true);
+                        }
+                    }, 10);
+                },
+            },
+            filters: {
+                formatStatues(val) {
+                    switch (val) {
+                        case 1:
+                            return '新增';
+                        case 2:
+                            return '修改';
+                        case 3:
+                            return '删除';
+                        case 4:
+                            return '暂停';
+                        case 5:
+                            return '停止';
+                        case 6:
+                            return '开启';
+                        case 7:
+                            return '立即执行';
+                        default:
+                            return "";
+                    }
+                }
+            }
+        });
+    </script>
+    <style scoped>
+        .avue-crud__dialog__menu {
+            margin: -3px 25px;
+            float: right;
+        }
+
+            .avue-crud__dialog__menu i {
+                color: #909399;
+                font-size: 15px;
+            }
+
+        .el-icon-full-screen:hover {
+            cursor: pointer;
+            color: #3478f5;
+        }
+
+        .el-icon-full-screen:before {
+            content: "\e719";
+        }
+    </style>
+}

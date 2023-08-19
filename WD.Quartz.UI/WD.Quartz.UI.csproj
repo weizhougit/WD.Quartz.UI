@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<IsPackable>true</IsPackable>
+		<PackAsTool>True</PackAsTool>
+		<PackageTags>quartz</PackageTags>
+		<PackageReleaseNotes>基于Quartz的简单job框架，支持API、DLL调用；支持文件、数据库的方式记录job信息。</PackageReleaseNotes>
+		<Description>基于Quartz的简单job框架，支持API、DLL调用；支持文件、数据库的方式记录job信息。</Description>
+		<Authors>WD</Authors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FreeSql" Version="3.2.698" />
+		<PackageReference Include="FreeSql.DbContext" Version="3.2.698" />
+		<PackageReference Include="FreeSql.Provider.MySql" Version="3.2.698" />
+		<PackageReference Include="FreeSql.Provider.Oracle" Version="3.2.698" />
+		<PackageReference Include="FreeSql.Provider.Sqlite" Version="3.2.698" />
+		<PackageReference Include="FreeSql.Provider.SqlServer" Version="3.2.698" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Quartz" Version="3.6.3" />
+	</ItemGroup>
+
+</Project>
