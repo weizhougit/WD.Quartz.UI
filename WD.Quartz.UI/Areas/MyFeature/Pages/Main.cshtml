@@ -3,7 +3,7 @@
 @model WD.Quartz.UI.Areas.MyFeature.Pages.MainModel
 @{
     Layout = "_JavasCriptLayout";
-    ViewData["Title"] = " Quartz后台任务调度";
+    ViewData["Title"] = "Quartz后台任务调度";
 }
 <div id="main">
     <el-container class="app-container">
@@ -20,7 +20,8 @@
                          background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" @@select="selectMenuHandle">
                     <el-menu-item index="1">任务调度</el-menu-item>
                     <el-menu-item index="2">系统设置</el-menu-item>
-                    <el-menu-item index="3"><el-link @@click="handleTC" target="_blank" :underline="false">安全退出</el-link></el-menu-item>
+                    <el-menu-item index="3">帮助文档</el-menu-item>
+                    <el-menu-item index="4"><el-link @@click="handleTC" target="_blank" :underline="false">安全退出</el-link></el-menu-item>
                 </el-menu>
             </div>
         </el-header>
@@ -160,38 +161,54 @@
                                 </el-row>
 
                             </el-tab-pane>
-                  @*           <el-tab-pane label="数据库设置" name="db">
-                                <el-row type="flex" justify="center">
-                                    <el-col :span="12">
-                                        <el-form :model="ruleDbForm" ref="ruleDbForm" label-width="10em" class="demo-ruleDbForm">
-                                            <el-form-item label="数据库类型" prop="DataType" :rules="ruleDb.DataType">
-                                                <el-select filterable v-model="ruleDbForm.DataType" placeholder="请选择数据库类型">
-                                                    <el-option v-for="item in dataBaseTypes" :label="item.Value" :value="item.Key"></el-option>
-                                                </el-select>
-                                            </el-form-item>
-                                            <el-form-item label="连接字符" prop="ConnectionString" :rules="ruleDb.ConnectionString">
-                                                <el-input type="password" v-model="ruleDbForm.ConnectionString" placeholder="请输入连接字符" autocomplete="new-password"></el-input>
-                                            </el-form-item>
-                                            <el-form-item label="状态" prop="Enable">
-                                                <el-radio-group v-model="ruleDbForm.Enable">
-                                                    <el-radio :label="true">启用</el-radio>
-                                                    <el-radio :label="false">禁用</el-radio>
-                                                </el-radio-group>
-                                            </el-form-item>
-                                        </el-form>
-                                    </el-col>
-                                </el-row>
-                                <el-row type="flex" justify="center">
-                                    <el-col :span="1">
-                                        <el-button type="primary" @@click="submitDbForm('ruleDbForm')">保存</el-button>
-                                    </el-col>
-                                </el-row>
+                            @*           <el-tab-pane label="数据库设置" name="db">
+                            <el-row type="flex" justify="center">
+                            <el-col :span="12">
+                            <el-form :model="ruleDbForm" ref="ruleDbForm" label-width="10em" class="demo-ruleDbForm">
+                            <el-form-item label="数据库类型" prop="DataType" :rules="ruleDb.DataType">
+                            <el-select filterable v-model="ruleDbForm.DataType" placeholder="请选择数据库类型">
+                            <el-option v-for="item in dataBaseTypes" :label="item.Value" :value="item.Key"></el-option>
+                            </el-select>
+                            </el-form-item>
+                            <el-form-item label="连接字符" prop="ConnectionString" :rules="ruleDb.ConnectionString">
+                            <el-input type="password" v-model="ruleDbForm.ConnectionString" placeholder="请输入连接字符" autocomplete="new-password"></el-input>
+                            </el-form-item>
+                            <el-form-item label="状态" prop="Enable">
+                            <el-radio-group v-model="ruleDbForm.Enable">
+                            <el-radio :label="true">启用</el-radio>
+                            <el-radio :label="false">禁用</el-radio>
+                            </el-radio-group>
+                            </el-form-item>
+                            </el-form>
+                            </el-col>
+                            </el-row>
+                            <el-row type="flex" justify="center">
+                            <el-col :span="1">
+                            <el-button type="primary" @@click="submitDbForm('ruleDbForm')">保存</el-button>
+                            </el-col>
+                            </el-row>
 
                             </el-tab-pane> *@
                             <el-tab-pane label="其它设置" name="other"></el-tab-pane>
                         </el-tabs>
                     </el-col>
                 </el-row>
+            </div>
+            <div class="main_helper" v-if="activeIndex=='3'">
+                <div><h1>注意点</h1></div>
+                <h3>1、配置登录授权后，默认密码（用户名：admin；密码：123@abc）；</h3>
+                <h3>2、退出登录后，若页面没有关闭，再次登录失败，请刷新页面再试；</h3>
+                <h3>3、页面无法显示、样式错乱，请添加代码 builder.WebHost.UseStaticWebAssets();</h3>
+                <h3>4、有问题去 <a href="https://github.com/weizhougit/WD.Quartz.UI">https://github.com/weizhougit/WD.Quartz.UI</a> 留言；</h3>
+                <h1></h1>
+                <div>
+                    <h1>配置说明</h1>
+                    <img src="~/_content/WD.Quartz.UI/images/setting.png">
+                    <h3>1、添加Quartz基础功能中间件（必要）；</h3>
+                    <h3>2、DLL使用的中间件（扫描继承“IJobService”的类，注入框架）；</h3>
+                    <h3>3、登录授权中间件（按需使用）；</h3>
+                    <h3>4、使用Quartz中间件（必要）；</h3>
+                </div>
             </div>
         </el-main>
     </el-container>
