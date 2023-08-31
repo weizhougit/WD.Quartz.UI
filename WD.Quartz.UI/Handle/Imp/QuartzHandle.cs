@@ -119,7 +119,7 @@ namespace WD.Quartz.UI.Handle.Imp
                 ITrigger trigger = TriggerBuilder.Create()
                    .WithIdentity(req.TaskName, req.GroupName)
                    .WithDescription(req.Describe)
-                   .WithCronSchedule(req.Interval)
+                   .WithCronSchedule(req.Interval, x => x.WithMisfireHandlingInstructionDoNothing())
                    .Build();
                 IScheduler scheduler = await _schedulerFactory.GetScheduler();
                 if (_jobFactory != null)
@@ -178,7 +178,7 @@ namespace WD.Quartz.UI.Handle.Imp
                     ITrigger trigger = TriggerBuilder.Create()
                        .WithIdentity(item.TaskName, item.GroupName)
                        .WithDescription(item.Describe)
-                       .WithCronSchedule(item.Interval)
+                       .WithCronSchedule(item.Interval, x => x.WithMisfireHandlingInstructionDoNothing())
                        .Build();
                     if (_jobFactory != null)
                         scheduler.JobFactory = _jobFactory;
@@ -295,7 +295,7 @@ namespace WD.Quartz.UI.Handle.Imp
                        .WithIdentity(req.TaskName, req.GroupName)
                        .StartNow()
                        .WithDescription(req.Describe)
-                       .WithCronSchedule(req.Interval)
+                       .WithCronSchedule(req.Interval, x => x.WithMisfireHandlingInstructionDoNothing())
                        .Build();
 
                     if (_jobFactory != null)
@@ -360,7 +360,7 @@ namespace WD.Quartz.UI.Handle.Imp
                     ITrigger trigger = TriggerBuilder.Create()
                        .WithIdentity(req.TaskName, req.GroupName)
                        .WithDescription(req.Describe)
-                       .WithCronSchedule(req.Interval)
+                       .WithCronSchedule(req.Interval, x => x.WithMisfireHandlingInstructionDoNothing())
                        .Build();
                     if (_jobFactory != null)
                         scheduler.JobFactory = _jobFactory;

@@ -8,6 +8,7 @@ using WD.Quartz.UI.Models.Enums;
 
 namespace WD.Quartz.UI.BaseJobs
 {
+    [DisallowConcurrentExecution]
     public class HttpJob : IJob
     {
 
