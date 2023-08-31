@@ -7,5 +7,7 @@ namespace WD.Quartz.UI.Models.BO
         public DataType DataType { get; set; }
 
         public string ConnectionString { get; set; }
+
+        public bool Enable { get; set; } = false;
     }
 }

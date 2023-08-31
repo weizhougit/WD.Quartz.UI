@@ -18,10 +18,17 @@
 		<PackageReference Include="FreeSql.DbContext" Version="3.2.698" />
 		<PackageReference Include="FreeSql.Provider.MySql" Version="3.2.698" />
 		<PackageReference Include="FreeSql.Provider.Oracle" Version="3.2.698" />
-		<PackageReference Include="FreeSql.Provider.Sqlite" Version="3.2.698" />
 		<PackageReference Include="FreeSql.Provider.SqlServer" Version="3.2.698" />
+		<PackageReference Include="MailKit" Version="4.1.0" />
+		<PackageReference Include="MimeKit" Version="4.1.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Quartz" Version="3.6.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="wwwroot\templates\task_notify.html">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

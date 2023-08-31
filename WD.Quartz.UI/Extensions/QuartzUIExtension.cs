@@ -16,25 +16,24 @@ namespace WD.Quartz.UI.Extensions;
 
 public static class QuartzUIExtension
 {
-    public static IServiceCollection AddQuartzUI(this IServiceCollection services, DbOption option = null)
+    public static IServiceCollection AddQuartzUI(this IServiceCollection services, DbOption? dbOption = null)
     {
         services.AddRazorPages();
         services.AddHttpClient();
         services.AddHttpContextAccessor();
-
-        if (option != null)
+        services.AddSingleton<QuartzFileHelper>();
+        services.AddSingleton<IUserService, UserService>();
+        services.AddScoped<IMailService, MailService>();
+        if (dbOption != null)
         {
-            services.AddFreeSql(option);
+            services.AddFreeSql(dbOption);
             services.AddScoped<IQuartzLogService, DbQuartzLogService>();
             services.AddScoped<IQuartzService, DbQuartzService>();
-
         }
         else
         {
-            services.AddScoped<QuartzFileHelper>();
             services.AddScoped<IQuartzLogService, FileQuartzLogService>();
             services.AddScoped<IQuartzService, FileQuartzService>();
-
         }
         services.AddScoped<HttpJob>();
         services.AddScoped<DLLJob>();

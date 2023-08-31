@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Linq.Expressions;
 using WD.Quartz.UI.Extensions;
+using WD.Quartz.UI.Models.BO;
 using WD.Quartz.UI.Models.PO;
 
 namespace WD.Quartz.UI.Helpers
@@ -9,11 +10,17 @@ namespace WD.Quartz.UI.Helpers
     {
         string _rootPath { get; set; }
         string _logPath { get; set; }
-        public string QuartzSettingsFolder { get; set; } = "QuartzSettings";
-        public string TaskJobFileName { get; set; } = "quartz_task_job.json";
-        public string Logs { get; set; } = "logs";
+        private string QuartzSettingsFolder { get; set; } = "QuartzSettings";
+        private string TaskJobFileName { get; set; } = "quartz_task_job.json";
+        private string Logs { get; set; } = "logs";
+
+        private string MailFile { get; set; } = "Mail.txt";
+
+        private string UserFile { get; set; } = "User.txt";
+
+        private string DataBaseFile { get; set; } = "DataBaseFile.txt";
+
         private IWebHostEnvironment _env;
-        private IConfiguration _configuration;
 
         public string RootPath { get { return _rootPath; } }
         public string LogPath { get { return _logPath; } }
@@ -21,7 +28,6 @@ namespace WD.Quartz.UI.Helpers
         public QuartzFileHelper(IWebHostEnvironment env, IConfiguration configuration)
         {
             _env = env;
-            _configuration = configuration;
             CreateQuartzRootPath();
         }
 
@@ -39,6 +45,8 @@ namespace WD.Quartz.UI.Helpers
             return _rootPath;
         }
 
+
+        #region jobs
         /// <summary>
         /// 获取jobs
         /// </summary>
@@ -93,7 +101,6 @@ namespace WD.Quartz.UI.Helpers
             FileHelper.WriteFile(_rootPath, TaskJobFileName, jobs);
         }
 
-
         /// <summary>
         /// 写入日志
         /// </summary>
@@ -131,5 +138,100 @@ namespace WD.Quartz.UI.Helpers
         {
             FileHelper.DeleteFolder(LogPath, day);
         }
+        #endregion
+
+
+        #region 用户配置
+        /// <summary>
+        /// 获取用户
+        /// </summary>
+        /// <returns></returns>
+        public UserOption GetUserInfo()
+        {
+            var filePath = Path.Combine(_rootPath, UserFile);
+            if (!File.Exists(filePath))
+                return new UserOption();
+            var userStr = FileHelper.ReadFile(filePath);
+            if (string.IsNullOrEmpty(userStr))
+                return new UserOption();
+            var user = JsonConvert.DeserializeObject<UserOption>(userStr);
+            return user;
+        }
+
+
+        /// <summary>
+        /// 保存用户
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public void SaveUserInfo(UserOption req)
+        {
+            string userStr = JsonConvert.SerializeObject(req);
+            //写入配置文件
+            FileHelper.WriteFile(_rootPath, UserFile, userStr);
+        }
+        #endregion
+
+        #region 邮箱配置
+        /// <summary>
+        /// 获取邮件
+        /// </summary>
+        /// <returns></returns>
+        public MailOption GetMailInfo()
+        {
+            var filePath = Path.Combine(_rootPath, MailFile);
+            if (!File.Exists(filePath))
+                return new MailOption();
+            var mailStr = FileHelper.ReadFile(filePath);
+            if (string.IsNullOrEmpty(mailStr))
+                return new MailOption();
+            var mail = JsonConvert.DeserializeObject<MailOption>(mailStr);
+            return mail;
+        }
+
+
+        /// <summary>
+        /// 保存邮件
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public void SaveMailInfo(MailOption req)
+        {
+            string mailStr = JsonConvert.SerializeObject(req);
+            //写入配置文件
+            FileHelper.WriteFile(_rootPath, MailFile, mailStr);
+        }
+        #endregion
+
+        #region 数据库配置
+
+        /// <summary>
+        /// 获取数据库配置
+        /// </summary>
+        /// <returns></returns>
+        public DbOption GetDbInfo()
+        {
+            var filePath = Path.Combine(_rootPath, DataBaseFile);
+            if (!File.Exists(filePath))
+                return new DbOption();
+            var dbStr = FileHelper.ReadFile(filePath);
+            if (string.IsNullOrEmpty(dbStr))
+                return new DbOption();
+            var db = JsonConvert.DeserializeObject<DbOption>(dbStr);
+            return db;
+        }
+
+        /// <summary>
+        /// 保存数据库配置
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public void SaveDbInfo(DbOption req)
+        {
+            string dbStr = JsonConvert.SerializeObject(req);
+            //写入配置文件
+            FileHelper.WriteFile(_rootPath, DataBaseFile, dbStr);
+        }
+        #endregion
     }
 }

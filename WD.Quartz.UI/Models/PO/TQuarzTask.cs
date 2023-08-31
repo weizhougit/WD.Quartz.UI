@@ -93,5 +93,11 @@ namespace WD.Quartz.UI.Models.PO
         [Description("DLL类型名")]
         public string DllClassName { get; set; }
         #endregion
+
+        /// <summary>
+        /// 邮件级别
+        /// </summary>
+        [Description("邮件级别（不发送 = 1,正常发送 = 2;异常发送 = 3;全部发送 = 4）")]
+        public int MailLevel { get; set; } = 1;
     }
 }

@@ -1,5 +1,4 @@
 using WD.Quartz.UI.Extensions;
-using WD.Quartz.UI.Models.BO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,6 @@ builder.Services.AddQuartzClass();
 var app = builder.Build();
 app.UseQuartzUILogin();
 app.UseRouting();
-app.UseQuartz(); //添加这行代码
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapGet("/", async context =>
@@ -19,4 +17,5 @@ app.UseEndpoints(endpoints =>
         await context.Response.WriteAsync("Hello World!1212121");
     });
 });
+app.UseQuartz(); //添加这行代码
 app.Run();

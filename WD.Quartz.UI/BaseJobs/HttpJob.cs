@@ -4,6 +4,7 @@ using Quartz.Impl;
 using WD.Quartz.UI.Models.PO;
 using WD.Quartz.UI.Services;
 using WD.Quartz.UI.Extensions;
+using WD.Quartz.UI.Models.Enums;
 
 namespace WD.Quartz.UI.BaseJobs
 {
@@ -14,21 +15,24 @@ namespace WD.Quartz.UI.BaseJobs
         readonly IQuartzService _quartzService;
         readonly IQuartzLogService _quartzLogService;
         readonly ILogger<IJob> _logger;
+        readonly IMailService _mailService;
 
         public HttpJob(IHttpClientFactory httpClientFactory,
             IQuartzService quartzService,
             IQuartzLogService quartzLogService,
-            ILogger<IJob> logger)
+            ILogger<IJob> logger,
+            IMailService mailService)
         {
             _httpClientFactory = httpClientFactory;
             _quartzLogService = quartzLogService;
             _quartzService = quartzService;
             _logger = logger;
+            _mailService = mailService;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
-           DateTime dateTime = DateTime.Now;
+            DateTime dateTime = DateTime.Now;
             string httpMessage = "";
             AbstractTrigger trigger = (context as JobExecutionContextImpl).Trigger as AbstractTrigger;
             var jobTask = (await _quartzService.GetJobs(x => x.TaskName == trigger.Name && x.GroupName == trigger.Group)).FirstOrDefault();
@@ -62,14 +66,33 @@ namespace WD.Quartz.UI.BaseJobs
                         jobTask.ApiParameter,
                         header);
 
-                if (!response.IsOk())
+                if (response.IsOk())
+                {
                     httpMessage = $"执行成功，响应消息：{response.Message}";
-
-                httpMessage = $"执行失败，响应消息：{response.Message}";
+                }
+                else
+                {
+                    httpMessage = $"执行失败，响应消息：{response.Message}";
+                }
+                if (jobTask.MailLevel != MailMessageEnum.全部.GetHashCode())
+                {
+                    await _mailService.InfoAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                }
             }
             catch (Exception ex)
             {
                 httpMessage = ex.Message;
+                if (jobTask.MailLevel != MailMessageEnum.全部.GetHashCode())
+                {
+                    await _mailService.ErrorAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                }
+            }
+            finally
+            {
+                if (jobTask.MailLevel == MailMessageEnum.全部.GetHashCode())
+                {
+                    await _mailService.ErrorAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                }
             }
             try
             {

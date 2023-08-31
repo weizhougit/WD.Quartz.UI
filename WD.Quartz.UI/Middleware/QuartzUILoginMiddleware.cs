@@ -1,17 +1,19 @@
 ﻿using System.Net;
 using System.Text;
+using WD.Quartz.UI.Services;
 
 namespace WD.Quartz.UI.Middleware
 {
     public class QuartzUILoginMiddleware
     {
-        readonly RequestDelegate _next;
-        readonly IConfiguration _configuration;
+        private readonly RequestDelegate _next;
+        private readonly IUserService _userService;
 
-        public QuartzUILoginMiddleware(RequestDelegate next, IConfiguration configuration)
+        public QuartzUILoginMiddleware(RequestDelegate next,
+            IUserService userService)
         {
             _next = next;
-            _configuration = configuration;
+            _userService = userService;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -55,8 +57,9 @@ namespace WD.Quartz.UI.Middleware
         public bool IsAuthorized(string userName, string password)
         {
             // 从配置读取帐户密码,否则默认
-            var UserName = _configuration["QuartzUI:UserName"] ?? "Admin";
-            var Password = _configuration["QuartzUI:Password"] ?? "123456";
+            var user = _userService.Get().Result;
+            var UserName = user.Data?.UserName ?? "admin";
+            var Password = user.Data?.Password ?? "123@abc";
             return userName.Equals(UserName) && password.Equals(Password);
         }
     }

@@ -17,88 +17,182 @@
             <!-- 头部样式 -->
             <div class="menu" style="float: right;">
                 <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
-                         background-color="#545c64"
-                         text-color="#fff"
-                         active-text-color="#ffd04b">
+                         background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" @@select="selectMenuHandle">
                     <el-menu-item index="1">任务调度</el-menu-item>
-                    <el-menu-item index="2"><el-link @@click="handleTC" target="_blank" :underline="false">安全退出</el-link></el-menu-item>
+                    <el-menu-item index="2">系统设置</el-menu-item>
+                    <el-menu-item index="3"><el-link @@click="handleTC" target="_blank" :underline="false">安全退出</el-link></el-menu-item>
                 </el-menu>
             </div>
         </el-header>
         <el-main>
-            <el-row class="app-function" type="flex" align="middle" style="height: 64px;">
-                <el-col :span="8">
-                    <h4>后台任务列表</h4>
-                </el-col>
-                <el-col :span="16" style="text-align: right;">
-                    <el-button type="primary" size="small" icon="el-icon-plus" @@click="handleXJRW">新建任务</el-button>
-                    <el-button type="info" size="small" icon="el-icon-edit" @@click="handleXGRW">修改任务</el-button>
-                    <el-button type="success" size="small" icon="el-icon-open" @@click="handleKQRW">开启任务</el-button>
-                    <el-button type="warning" size="small" icon="el-icon-video-pause" @@click="handleZTRW">暂停任务</el-button>
-                    <el-button type="danger" size="small" icon="el-icon-video-play" @@click="handleLJZX">立即执行</el-button>
-                    <el-button type="danger" size="small" icon="el-icon-delete-solid" @@click="handleSCRW">删除任务</el-button>
-                    <el-button type="default" size="small" icon="el-icon-refresh" @@click="handleSXRW">刷新数据</el-button>
-                </el-col>
-            </el-row>
-            <el-row type="flex" align="middle">
-                <el-col :span="24" style="padding: 10px 0 0 0;">
-                    <el-table ref="tableRef" :data="tableData" border stripe style="width: 100%;" highlight-current-row
-                              :max-height="tabContentHeight" @* :height="tabContentHeight" *@ :header-cell-style="{backgroundColor:'#F5F7FA',color:'#000000'}"
-                              @@current-change="handleSelect">
-                        <el-table-column type="index" width="50" label="序号" align="center">
-                        </el-table-column>
-                        <el-table-column prop="TaskName" label="任务" width="180" align="center">
-                        </el-table-column>
-                        <el-table-column prop="GroupName" label="分组" width="180" align="center">
-                        </el-table-column>
-                        <el-table-column prop="Interval" width="120" label="间隔时间" align="center">
-                        </el-table-column>
-                        <el-table-column prop="Status" width="120" label="运行状态" align="center">
-                            <template slot-scope="scope">
-                                <el-tag type="danger" disable-transitions v-if="scope.row.Status==4">
-                                    {{scope.row.Status|formatStatues}}
-                                </el-tag>
-                                <el-tag type="danger" disable-transitions v-if="scope.row.Status==5">
-                                    {{scope.row.Status|formatStatues}}
-                                </el-tag>
-                                <el-tag type="success" disable-transitions v-if="scope.row.Status==6">
-                                    {{scope.row.Status|formatStatues}}
-                                </el-tag>
-                                <el-tag type="success" disable-transitions v-if="scope.row.Status==7">
-                                    {{scope.row.Status|formatStatues}}
-                                </el-tag>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="TaskType" label="任务类型" width="120" align="center">
-                            <template slot-scope="scope">
-                                {{scope.row.TaskType==1?'API':'DLL'}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="ApiUrl" label="ApiUrl" width="200" align="center" :show-overflow-tooltip="true"></el-table-column>
-                        <el-table-column prop="LastRunTime" width="180" label="最近一次运行时间" align="center">
-                        </el-table-column>
-                        <el-table-column prop="Describe" label="任务描述" :show-overflow-tooltip="true" align="center">
-                        </el-table-column>
-                        <el-table-column label="操作" width="160" align="center">
-                            <template slot-scope="scope">
-                                <el-button size="mini" type="default" @@click="handleRunLog(scope.$index, scope.row)">执行记录</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-col>
-            </el-row>
-            <el-row class="app-pagination" type="flex" align="middle">
-                <el-col :span="24" style="text-align: right;margin-top:20px;">
-                    <el-pagination @@size-change="handleSizeChange"
-                                   @@current-change="handleCurrentChange"
-                                   :current-page="pagination.PageNumber"
-                                   :page-sizes="[10, 20, 30, 50]"
-                                   :page-size="pagination.PageSize"
-                                   layout="total, sizes, prev, pager, next, jumper"
-                                   :total="pagination.Total">
-                    </el-pagination>
-                </el-col>
-            </el-row>
+            <div class="main_task" v-if="activeIndex=='1'">
+                <el-row class="app-function" type="flex" align="middle" style="height: 64px;">
+                    <el-col :span="8">
+                        <h4>后台任务列表</h4>
+                    </el-col>
+                    <el-col :span="16" style="text-align: right;">
+                        <el-button type="primary" size="small" icon="el-icon-plus" @@click="handleXJRW">新建任务</el-button>
+                        <el-button type="info" size="small" icon="el-icon-edit" @@click="handleXGRW">修改任务</el-button>
+                        <el-button type="success" size="small" icon="el-icon-open" @@click="handleKQRW">开启任务</el-button>
+                        <el-button type="warning" size="small" icon="el-icon-video-pause" @@click="handleZTRW">暂停任务</el-button>
+                        <el-button type="danger" size="small" icon="el-icon-video-play" @@click="handleLJZX">立即执行</el-button>
+                        <el-button type="danger" size="small" icon="el-icon-delete-solid" @@click="handleSCRW">删除任务</el-button>
+                        <el-button type="default" size="small" icon="el-icon-refresh" @@click="handleSXRW">刷新数据</el-button>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle">
+                    <el-col :span="24" style="padding: 10px 0 0 0;">
+                        <el-table ref="tableRef" :data="tableData" border stripe style="width: 100%;" highlight-current-row
+                                  :max-height="tabContentHeight" @* :height="tabContentHeight" *@ :header-cell-style="{backgroundColor:'#F5F7FA',color:'#000000'}"
+                                  @@current-change="handleSelect">
+                            <el-table-column type="index" width="50" label="序号" align="center">
+                            </el-table-column>
+                            <el-table-column prop="TaskName" label="任务" width="180" align="center">
+                            </el-table-column>
+                            <el-table-column prop="GroupName" label="分组" width="180" align="center">
+                            </el-table-column>
+                            <el-table-column prop="Interval" width="120" label="间隔时间" align="center">
+                            </el-table-column>
+                            <el-table-column prop="Status" width="120" label="运行状态" align="center">
+                                <template slot-scope="scope">
+                                    <el-tag type="danger" disable-transitions v-if="scope.row.Status==4">
+                                        {{scope.row.Status|formatStatues}}
+                                    </el-tag>
+                                    <el-tag type="danger" disable-transitions v-if="scope.row.Status==5">
+                                        {{scope.row.Status|formatStatues}}
+                                    </el-tag>
+                                    <el-tag type="success" disable-transitions v-if="scope.row.Status==6">
+                                        {{scope.row.Status|formatStatues}}
+                                    </el-tag>
+                                    <el-tag type="success" disable-transitions v-if="scope.row.Status==7">
+                                        {{scope.row.Status|formatStatues}}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="TaskType" label="任务类型" width="120" align="center">
+                                <template slot-scope="scope">
+                                    {{scope.row.TaskType==1?'API':'DLL'}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="ApiUrl" label="ApiUrl" width="200" align="center" :show-overflow-tooltip="true"></el-table-column>
+                            <el-table-column prop="LastRunTime" width="180" label="最近一次运行时间" align="center">
+                            </el-table-column>
+                            <el-table-column prop="Describe" label="任务描述" :show-overflow-tooltip="true" align="center">
+                            </el-table-column>
+                            <el-table-column label="操作" width="160" align="center">
+                                <template slot-scope="scope">
+                                    <el-button size="mini" type="default" @@click="handleRunLog(scope.$index, scope.row)">执行记录</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-col>
+                </el-row>
+                <el-row class="app-pagination" type="flex" align="middle">
+                    <el-col :span="24" style="text-align: right;margin-top:20px;">
+                        <el-pagination @@size-change="handleSizeChange"
+                                       @@current-change="handleCurrentChange"
+                                       :current-page="pagination.PageNumber"
+                                       :page-sizes="[10, 20, 30, 50]"
+                                       :page-size="pagination.PageSize"
+                                       layout="total, sizes, prev, pager, next, jumper"
+                                       :total="pagination.Total">
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="main_system" v-if="activeIndex=='2'">
+                <el-row class="app-function" type="flex" align="middle" style="height: 64px;">
+                    <el-col :span="24">
+                        <h4>系统设置</h4>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" justify="center">
+                    <el-col :span="23">
+                        <el-tabs tab-position="top" @@tab-click="tabHandleClick" v-model="tabActiveName">
+                            <el-tab-pane label="用户设置" name="user">
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="12">
+                                        <el-form :model="ruleUserForm" ref="ruleUserForm" label-width="10em" class="demo-ruleUserForm">
+                                            <el-form-item label="用户名" prop="UserName" :rules="ruleUser.UserName">
+                                                <el-input v-model="ruleUserForm.UserName" placeholder="请输入用户名"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="密码" prop="Password" :rules="ruleUser.Password">
+                                                <el-input type="password" v-model="ruleUserForm.Password" placeholder="请输入用户密码" autocomplete="new-password"></el-input>
+                                            </el-form-item>
+                                        </el-form>
+                                    </el-col>
+                                </el-row>
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="1">
+                                        <el-button type="primary" @@click="submitUserForm('ruleUserForm')">保存</el-button>
+                                    </el-col>
+                                </el-row>
+
+                            </el-tab-pane>
+                            <el-tab-pane label="邮箱设置" name="mail">
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="12">
+                                        <el-form :model="ruleMailForm" ref="ruleMailForm" label-width="10em" class="demo-ruleMailForm">
+                                            <el-form-item label="发件服务器" prop="Host" :rules="ruleMail.Host">
+                                                <el-input v-model="ruleMailForm.Host" placeholder="请输入发件服务器"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="发件人姓名" prop="SenderName" :rules="ruleMail.SenderName">
+                                                <el-input v-model="ruleMailForm.SenderName" placeholder="请输入发件人姓名"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="发件邮箱" prop="SenderAddress" :rules="ruleMail.SenderAddress">
+                                                <el-input v-model="ruleMailForm.SenderAddress" placeholder="请输入发件人地址"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="邮箱密码" prop="Password" :rules="ruleMail.Password">
+                                                <el-input type="password" v-model="ruleMailForm.Password" placeholder="请输入邮箱密码" autocomplete="new-password"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="收件邮箱" prop="ReciverEmail" :rules="ruleMail.ReciverEmail">
+                                                <el-input v-model="ruleMailForm.ReciverEmail" placeholder="请输入收件邮箱">
+                                                </el-input>
+                                                <span style="color:red">*收件邮箱：my@163.com;my2@163.com（多个邮箱用分号分隔）</span>
+                                            </el-form-item>
+                                        </el-form>
+                                    </el-col>
+                                </el-row>
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="1">
+                                        <el-button type="primary" @@click="submitMailForm('ruleMailForm')">保存</el-button>
+                                    </el-col>
+                                </el-row>
+
+                            </el-tab-pane>
+                  @*           <el-tab-pane label="数据库设置" name="db">
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="12">
+                                        <el-form :model="ruleDbForm" ref="ruleDbForm" label-width="10em" class="demo-ruleDbForm">
+                                            <el-form-item label="数据库类型" prop="DataType" :rules="ruleDb.DataType">
+                                                <el-select filterable v-model="ruleDbForm.DataType" placeholder="请选择数据库类型">
+                                                    <el-option v-for="item in dataBaseTypes" :label="item.Value" :value="item.Key"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                            <el-form-item label="连接字符" prop="ConnectionString" :rules="ruleDb.ConnectionString">
+                                                <el-input type="password" v-model="ruleDbForm.ConnectionString" placeholder="请输入连接字符" autocomplete="new-password"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="状态" prop="Enable">
+                                                <el-radio-group v-model="ruleDbForm.Enable">
+                                                    <el-radio :label="true">启用</el-radio>
+                                                    <el-radio :label="false">禁用</el-radio>
+                                                </el-radio-group>
+                                            </el-form-item>
+                                        </el-form>
+                                    </el-col>
+                                </el-row>
+                                <el-row type="flex" justify="center">
+                                    <el-col :span="1">
+                                        <el-button type="primary" @@click="submitDbForm('ruleDbForm')">保存</el-button>
+                                    </el-col>
+                                </el-row>
+
+                            </el-tab-pane> *@
+                            <el-tab-pane label="其它设置" name="other"></el-tab-pane>
+                        </el-tabs>
+                    </el-col>
+                </el-row>
+            </div>
         </el-main>
     </el-container>
     <el-dialog :title="addDialog.title" :visible.sync="addDialog.visible" :destroy-on-close="true">
@@ -183,6 +277,14 @@
                     <el-form-item label="任务描述" prop="Describe">
                         <el-input type="textarea" :rows="5" v-model="ruleForm.Describe"></el-input>
                     </el-form-item>
+                    <el-form-item label="邮件通知" prop="MailLevel">
+                        <el-radio-group v-model="ruleForm.MailLevel">
+                            <el-radio :label="1">不通知</el-radio>
+                            <el-radio :label="2">通知正常</el-radio>
+                            <el-radio :label="3">通知异常</el-radio>
+                            <el-radio :label="4">通知全部</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                 </el-form>
             </el-col>
         </el-row>
@@ -244,6 +346,7 @@
             data() {
                 return {
                     activeIndex: '1',
+                    tabActiveName: "user",
                     tableData: [],
                     ruleForm: this.initTaskEntity(),
                     rules: {
@@ -269,12 +372,62 @@
                             { required: true, message: '请选择API访问类型', trigger: 'change' }
                         ],
                         DllClassName: [
-                            { required: true, message: '请输入类名', trigger: 'blur' }
+                            { required: true, message: '请选择DLL类型名', trigger: 'change' }
                         ]
+                    },
+                    ruleUserForm: {
+                        UserName: "",
+                        Password: "",
+                    },
+                    ruleUser: {
+                        UserName: [
+                            { required: true, message: '请输入用户名', trigger: 'blur' }
+                        ],
+                        Password: [
+                            { required: true, message: '请输入用户密码', trigger: 'blur' }
+                        ],
+                    },
+                    ruleMailForm: {
+                        Host: "",
+                        SenderAddress: "",
+                        SenderName: "",
+                        Password: "",
+                        ReciverEmail: "",
+                    },
+                    ruleMail: {
+                        Host: [
+                            { required: true, message: '请输入发件服务器', trigger: 'blur' }
+                        ],
+                        SenderAddress: [
+                            { required: true, message: '请输入发件人地址', trigger: 'blur' }
+                        ],
+                        SenderName: [
+                            { required: true, message: '请输入发件人姓名', trigger: 'blur' }
+                        ],
+                        Password: [
+                            { required: true, message: '请输入邮箱密码', trigger: 'blur' }
+                        ],
+                        ReciverEmail: [
+                            { required: true, message: '请输入收件邮箱', trigger: 'blur' }
+                        ],
+                    },
+                    ruleDbForm: {
+                        DataType: "",
+                        Enable: false,
+                        ConnectionString: "",
+                    },
+                    ruleDb: {
+                        DataType: [
+                            { required: true, message: '请选择数据库类型', trigger: 'change' }
+                        ],
+                        ConnectionString: [
+                            { required: true, message: '请输入连接字符', trigger: 'blur' }
+                        ],
                     },
                     selectRow: "",
                     recordData: [],
                     classJobs: [],
+                    dataBaseTypes: [],
                     pagination: {
                         PageNumber: 1,
                         PageSize: 10,
@@ -302,7 +455,8 @@
             },
             mounted: function () {
                 this.handleSXRW();
-                this.getclassJobs();
+                this.getClassJobs();
+                // this.getDataBaseTypes();
                 this.calculateTableHeight();
             },
             methods: {
@@ -318,10 +472,16 @@
                         that.tableData = res.data.Data;
                     });
                 },
-                getclassJobs() {
+                getClassJobs() {
                     var that = this;
                     axios("?handler=SelectClassJob").then(function (res) {
                         that.classJobs = res.data.Data;
+                    });
+                },
+                getDataBaseTypes() {
+                    var that = this;
+                    axios("?handler=SelectDataBaseType").then(function (res) {
+                        that.dataBaseTypes = res.data.Data;
                     });
                 },
                 handleXJRW() {
@@ -552,6 +712,7 @@
                         ApiAuthValue: '',
                         ApiParameter: '',
                         DllClassName: '',
+                        MailLevel: 1
                     }
                 },
                 handleTC() {
@@ -603,6 +764,124 @@
                             that.calculateLogTableHeight(true);
                         }
                     }, 10);
+                },
+                selectMenuHandle(key, keyPath) {
+                    this.activeIndex = key;
+                    if (this.activeIndex == "2") {
+                        this.getUser();
+                    }
+                },
+                tabHandleClick(tab, event) {
+                    switch (tab.name) {
+                        case "user":
+                            this.getUser();
+                            break;
+                        case "mail":
+                            this.getMail();
+                            break;
+                        case "db":
+                            this.getDbConfig();
+                            break;
+                    }
+                },
+                getUser() {
+                    var that = this;
+                    axios.get("?handler=User", null, {
+                        params: {
+                        }
+                    }).then(function (res) {
+                        that.ruleUserForm = res.data.Data;
+                    });
+                },
+                getMail() {
+                    var that = this;
+                    axios.get("?handler=Mail", null, {
+                        params: {
+                        }
+                    }).then(function (res) {
+                        that.ruleMailForm = res.data.Data;
+                    });
+                },
+                getDbConfig() {
+                    var that = this;
+                    axios.get("?handler=DbConfig", null, {
+                        params: {
+                        }
+                    }).then(function (res) {
+                        that.ruleDbForm = res.data.Data;
+                    });
+                },
+                submitUserForm(name) {
+                    var that = this;
+                    this.$refs[name].validate((valid) => {
+                        if (valid) {
+                            axios.post("?handler=AddUser", null,
+                                {
+                                    params: that.ruleUserForm
+                                }
+                            ).then(function (res) {
+                                if (res.data.Result > 0) {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'success', callback: () => {
+                                        }
+                                    });
+                                } else {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'error', callback: () => {
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                },
+                submitMailForm(name) {
+                    var that = this;
+                    this.$refs[name].validate((valid) => {
+                        if (valid) {
+                            axios.post("?handler=AddMail", null,
+                                {
+                                    params: that.ruleMailForm
+                                }
+                            ).then(function (res) {
+                                if (res.data.Result > 0) {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'success', callback: () => {
+                                        }
+                                    });
+                                } else {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'error', callback: () => {
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                },
+                submitDbForm(name) {
+                    var that = this;
+                    this.$refs[name].validate((valid) => {
+                        if (valid) {
+                            axios.post("?handler=AddDbConfig", null,
+                                {
+                                    params: that.ruleDbForm
+                                }
+                            ).then(function (res) {
+                                if (res.data.Result > 0) {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'success', callback: () => {
+                                        }
+                                    });
+                                } else {
+                                    ELEMENT.MessageBox.alert(res.data.Message, "系统信息", {
+                                        type: 'error', callback: () => {
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
                 },
             },
             filters: {

@@ -59,6 +59,11 @@ namespace WD.Quartz.UI.Helpers
             enumerator.Dispose();
         }
 
+        /// <summary>
+        /// 读取文件
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static string ReadFile(string path)
         {
             path = path.ReplacePath();

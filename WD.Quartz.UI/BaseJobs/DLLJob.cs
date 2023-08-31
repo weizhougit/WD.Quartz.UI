@@ -3,6 +3,7 @@ using Quartz.Impl.Triggers;
 using Quartz.Impl;
 using WD.Quartz.UI.Services;
 using WD.Quartz.UI.Models.PO;
+using WD.Quartz.UI.Models.Enums;
 
 namespace WD.Quartz.UI.BaseJobs
 {
@@ -12,15 +13,18 @@ namespace WD.Quartz.UI.BaseJobs
         readonly ILogger<DLLJob> _logger;
         readonly IQuartzLogService _quartzLogService;
         readonly IServiceProvider _serviceProvider;
+        readonly IMailService _mailService;
         public DLLJob(IQuartzService quartzService,
             ILogger<DLLJob> logger,
             IServiceProvider serviceProvider,
-            IQuartzLogService quartzLogService)
+            IQuartzLogService quartzLogService,
+            IMailService mailService)
         {
             _quartzService = quartzService;
             _logger = logger;
             _serviceProvider = serviceProvider;
             _quartzLogService = quartzLogService;
+            _mailService = mailService;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -54,6 +58,10 @@ namespace WD.Quartz.UI.BaseJobs
                 if (service != null)
                 {
                     httpMessage = service.Execute(jobTask.ApiParameter);
+                    if (jobTask.MailLevel != MailMessageEnum.全部.GetHashCode())
+                    {
+                        await _mailService.InfoAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                    }
                 }
                 else
                 {
@@ -63,6 +71,17 @@ namespace WD.Quartz.UI.BaseJobs
             catch (Exception ex)
             {
                 httpMessage = ex.Message;
+                if (jobTask.MailLevel != MailMessageEnum.全部.GetHashCode())
+                {
+                    await _mailService.ErrorAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                }
+            }
+            finally
+            {
+                if (jobTask.MailLevel == MailMessageEnum.全部.GetHashCode())
+                {
+                    await _mailService.ErrorAsync(jobTask.TaskName, httpMessage, (MailMessageEnum)jobTask.MailLevel);
+                }
             }
             try
             {
